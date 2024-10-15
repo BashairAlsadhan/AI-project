@@ -101,9 +101,9 @@ def calculate_fitness(individual, target_dress_code, target_color, budget, comfo
     avg_comfort = sum([item["comfort"] for item in individual.values()]) / 5.0
     comfort_score = 1 if comfort_level <= avg_comfort else 0
 
-    # Weighted sum approach (the max sum will be 1 as 0.4+0.4+0.1+0.1 = 1 ) 
-    # for the team : we may adjust the weights also to 0.3,0.3,0.2,0.2 بس حسيت كذا منطقي اكثر 
-    fitness = 0.4 * dress_code_score + 0.4 * budget_score + 0.1 * color_score + 0.1 * comfort_score
+    # Weighted sum approach (the max sum will be 1 as 0.25+0.25+0.25+0.25 = 1 ) 
+    # For the team : we may adjust the weights also to 0.25 for each على حسب شرحهم حسيت كذا منطقي اكثر 
+    fitness = 0.25 * dress_code_score + 0.25 * budget_score + 0.25 * color_score + 0.25 * comfort_score
     return fitness
 
 
@@ -133,7 +133,7 @@ def binary_tournament_selection(population, fitnesses):
 
 #------------------------------------------------------------------------------------------------
 
-# all the following functions for validation 
+# all the following functions for validation EXTRA 
 
 def get_valid_dress_code():
     valid_dress_codes = ["Casual", "Sportswear", "Business", "Evening"]
@@ -195,10 +195,10 @@ def main():
     comfort_level = get_valid_comfort_level()
 
     # just for checking 
-    print(target_dress_code)
-    print(target_color)
-    print(budget)
-    print(comfort_level)
+    #print(target_dress_code)
+    #print(target_color)
+    #print(budget)
+    #print(comfort_level)
 
 
     # i put 10 randomaly, as they didnt specify any number (maybe it will be changed in the next phase)
@@ -211,14 +211,16 @@ def main():
 
     # Calculate fitness for each individual
     fitnesses = [calculate_fitness(individual, target_dress_code, target_color, budget, comfort_level) for individual in population]
-
-    print(fitnesses)
+    
+    #checking   
+    #print(fitnesses)
 
     # Selection
     parent1, parent2 = binary_tournament_selection(population, fitnesses)
 
-    print(" parent 1 is :", parent1)
-    print("parent 2 is :", parent2)
+    print(" parent 1 is : \n", parent1)
+    print("------------------------------------------------------------------")
+    print("parent 2 is : \n", parent2)
 
 
     
