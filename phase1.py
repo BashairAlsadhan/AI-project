@@ -179,8 +179,39 @@ def get_valid_comfort_level():
 
 #------------------------------------------------------------------------------------------------
 
+def two_point_crossover(parent1, parent2):
+
+    # turn parents into lists for crossover
+    keys = list(parent1.keys())
+    child1, child2 = parent1.copy(), parent2.copy()
+
+    # random two crossover points from 1,5(length of the chromosome)
+    point1, point2 = sorted(random.sample(range(1,len(keys)), 2))
+    print(" point 1 is : \n", point1)
+    print(" ponit 2 is : \n", point2) #delete later
 
 
+    
+
+    # swap genes between the two points
+    for i in range(point1, point2):
+        child1[keys[i]], child2[keys[i]] = parent2[keys[i]], parent1[keys[i]]
+
+    return child1, child2
+
+
+#------------------------------------------------------------------------------------------------
+
+def mutate(individual, mutation_rate=0.1):
+    # go through each gene in the chromosome, generate random probability for gene,
+    # if less than mutation rate(0.1) then replace gene with a random choice from the catagories
+    for key in individual:
+        if random.random() < mutation_rate:
+            individual[key] = random.choice(categories[key])
+            print("there has been a mutation")
+    return individual
+
+#------------------------------------------------------------------------------------------------
 
 def main():
     
@@ -216,11 +247,25 @@ def main():
     #print(fitnesses)
 
     # Selection
-    parent1, parent2 = binary_tournament_selection(population, fitnesses)
+    new_population = []
+    for _ in range(5): #replacing whole population once
+        parent1, parent2 = binary_tournament_selection(population, fitnesses)
+        child1, child2= two_point_crossover(parent1,parent2)
+        child1, child2= mutate(child1),mutate(child2)
+        new_population.append(child1)
+        new_population.append(child2)
+
 
     print(" parent 1 is : \n", parent1)
     print("------------------------------------------------------------------")
     print("parent 2 is : \n", parent2)
+    print("------------------------------------------------------------------")
+    print("child 1 is : \n", child1)
+    print("------------------------------------------------------------------")
+    print("child 2 is : \n", child2)
+    print("------------------------------------------------------------------")
+    for item in new_population:
+        print(item)
 
 
     
