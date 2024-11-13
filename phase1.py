@@ -187,8 +187,8 @@ def two_point_crossover(parent1, parent2):
 
     # random two crossover points from 1,5(length of the chromosome)
     point1, point2 = sorted(random.sample(range(1,len(keys)), 2))
-    print(" point 1 is : \n", point1)
-    print(" ponit 2 is : \n", point2) #delete later
+    # print(" point 1 is : \n", point1)
+    # print(" ponit 2 is : \n", point2) just checking 
 
 
     
@@ -208,7 +208,7 @@ def mutate(individual, mutation_rate=0.1):
     for key in individual:
         if random.random() < mutation_rate:
             individual[key] = random.choice(categories[key])
-            print("there has been a mutation")
+            # print("there has been a mutation in key"+key) just checking 
     return individual
 
 #------------------------------------------------------------------------------------------------
@@ -260,12 +260,14 @@ def main():
     print("------------------------------------------------------------------")
     print("parent 2 is : \n", parent2)
     print("------------------------------------------------------------------")
-    print("child 1 is : \n", child1)
-    print("------------------------------------------------------------------")
-    print("child 2 is : \n", child2)
-    print("------------------------------------------------------------------")
-    for item in new_population:
-        print(item)
+
+    # just checking 
+    # print("child 1 is : \n", child1)
+    # print("------------------------------------------------------------------")
+    # print("child 2 is : \n", child2)
+    # print("------------------------------------------------------------------")
+    # for item in new_population:
+    #     print(item)
 
 
     
