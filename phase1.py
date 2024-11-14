@@ -191,7 +191,6 @@ def two_point_crossover(parent1, parent2):
     # print(" ponit 2 is : \n", point2) just checking 
 
 
-    
 
     # swap genes between the two points
     for i in range(point1, point2):
@@ -213,28 +212,47 @@ def mutate(individual, mutation_rate=0.1):
 
 #------------------------------------------------------------------------------------------------
 
+def evolve_population(pop_size, max_generations, target_dress_code, target_color, budget, comfort_level, mutation_rate=0.1):
+    # Initialize population
+    population = create_initial_population(pop_size)
+    generation = 0
+    
+    while generation < max_generations :
+        # Calculate fitness for each individual
+        fitnesses = [calculate_fitness(ind, target_dress_code, target_color, budget, comfort_level) for ind in population]
+        best_fitness = max(fitnesses)
+        
+        # Selection and next generation creation
+        new_population = []
+        for _ in range(pop_size // 2):  # Generate the new population
+            parent1, parent2 = binary_tournament_selection(population, fitnesses)
+            child1, child2 = two_point_crossover(parent1, parent2)
+            new_population.extend([mutate(child1, mutation_rate), mutate(child2, mutation_rate)])
+        
+        population = new_population
+        generation += 1
+
+    # Return the best individual and its fitness from the final generation
+    best_individual = max(population, key=lambda ind: calculate_fitness(ind, target_dress_code, target_color, budget, comfort_level))
+    return calculate_fitness(best_individual, target_dress_code, target_color, budget, comfort_level), generation
+
+
+#------------------------------------------------------------------------------------------------
+
 def main():
+    print("Welcome to PerfectFit!")
     
-    
-    print ("Welcome to  PerfectFit!!!!!!")
-    
-    
-    # Get user input
+    # Get user inputs
     target_dress_code = get_valid_dress_code()
     target_color = get_valid_color_palette()
     budget = get_valid_budget()
     comfort_level = get_valid_comfort_level()
 
-    # just for checking 
-    #print(target_dress_code)
-    #print(target_color)
-    #print(budget)
-    #print(comfort_level)
-
-
-    # i put 10 randomaly, as they didnt specify any number (maybe it will be changed in the next phase)
+    # Experiment settings
     pop_size = 10
-
+    max_generations = 20000  # or any other suitable limit for your GA runs
+    num_runs = 20
+    
     population = create_initial_population(pop_size)
 
     #checking 
@@ -243,7 +261,7 @@ def main():
     # Calculate fitness for each individual
     fitnesses = [calculate_fitness(individual, target_dress_code, target_color, budget, comfort_level) for individual in population]
     
-    #checking   
+    #checking
     #print(fitnesses)
 
     # Selection
@@ -260,7 +278,7 @@ def main():
     print("------------------------------------------------------------------")
     print("parent 2 is : \n", parent2)
     print("------------------------------------------------------------------")
-
+    
     # just checking 
     # print("child 1 is : \n", child1)
     # print("------------------------------------------------------------------")
@@ -269,14 +287,19 @@ def main():
     # for item in new_population:
     #     print(item)
 
+    # Termination Condition
+    total_fitness = 0
+    for run in range(num_runs):
+        final_fitness, generations = evolve_population(pop_size, max_generations, target_dress_code, target_color, budget, comfort_level)
+        total_fitness += final_fitness
+        print(f"Run {run + 1}: Final fitness = {final_fitness:.4f} after {generations} generations")
 
-    
+    # Calculate and report the average fitness
+    average_fitness = total_fitness / num_runs
+    print(f"\nAverage fitness over {num_runs} runs: {average_fitness:.4f}")
 
 if __name__ == "__main__":
     main()
-
-
-
 
 
 
