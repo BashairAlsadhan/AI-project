@@ -250,7 +250,7 @@ def main():
 
     # Experiment settings
     pop_size = 10
-    max_generations = 20000  # or any other suitable limit for your GA runs
+    max_generations = 20000  
     num_runs = 20
     
     population = create_initial_population(pop_size)
