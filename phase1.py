@@ -276,7 +276,7 @@ def main():
             for key, value in best_individual.items():
                 print(f"{key}: {value.get('item')}")
             solution_fitness=calculate_fitness(best_individual, target_dress_code, target_color, budget, comfort_level)
-            print("solution fitness:"+solution_fitness)
+            print(f"solution fitness:{solution_fitness}")
 
 
 
