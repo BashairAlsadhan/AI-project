@@ -1,6 +1,7 @@
 
 
 import random
+import matplotlib.pyplot as plt
 
 
 
@@ -103,7 +104,7 @@ def calculate_fitness(individual, target_dress_code, target_color, budget, comfo
 
     # Weighted sum approach (the max sum will be 1 as 0.25+0.25+0.25+0.25 = 1 ) 
     # For the team : we may adjust the weights also to 0.25 for each على حسب شرحهم حسيت كذا منطقي اكثر 
-    fitness = 0.25 * dress_code_score + 0.25 * budget_score + 0.25 * color_score + 0.25 * comfort_score
+    fitness = 0.3 * dress_code_score + 0.3 * budget_score + 0.2 * color_score + 0.2 * comfort_score
     return fitness
 
 
@@ -186,7 +187,7 @@ def two_point_crossover(parent1, parent2):
     child1, child2 = parent1.copy(), parent2.copy()
 
     # random two crossover points from 1,5(length of the chromosome)
-    point1, point2 = sorted(random.sample(range(1,len(keys)), 2))
+    point1, point2 = sorted(random.sample(range(len(keys)), 2))
     # print(" point 1 is : \n", point1)
     # print(" ponit 2 is : \n", point2) just checking 
 
@@ -201,9 +202,9 @@ def two_point_crossover(parent1, parent2):
 
 #------------------------------------------------------------------------------------------------
 
-def mutate(individual, mutation_rate=0.1):
+def mutate(individual, mutation_rate):
     # go through each gene in the chromosome, generate random probability for gene,
-    # if less than mutation rate(0.1) then replace gene with a random choice from the catagories
+    # if less than mutation rate(0.01) then replace gene with a random choice from the catagories
     for key in individual:
         if random.random() < mutation_rate:
             individual[key] = random.choice(categories[key])
@@ -212,16 +213,23 @@ def mutate(individual, mutation_rate=0.1):
 
 #------------------------------------------------------------------------------------------------
 
-def evolve_population(pop_size, max_generations, target_dress_code, target_color, budget, comfort_level, mutation_rate=0.1):
+def evolve_population(pop_size, max_generations, target_dress_code, target_color, budget, comfort_level, mutation_rate=0.01, optimal_solution=1.0):
     # Initialize population
     population = create_initial_population(pop_size)
     generation = 0
-    
-    while generation < max_generations :
+    fitness_history = []  # To track fitness over generations
+    best_fitness = 0  # Track the best fitness in this run
+
+    while generation < max_generations:
         # Calculate fitness for each individual
         fitnesses = [calculate_fitness(ind, target_dress_code, target_color, budget, comfort_level) for ind in population]
         best_fitness = max(fitnesses)
-        
+        fitness_history.append(best_fitness)  # Record the best fitness for this generation
+
+        # Check termination condition
+        if abs(best_fitness - optimal_solution) < 1e-8:
+            break
+
         # Selection and next generation creation
         new_population = []
         for _ in range(pop_size // 2):  # Generate the new population
@@ -232,12 +240,9 @@ def evolve_population(pop_size, max_generations, target_dress_code, target_color
         population = new_population
         generation += 1
 
-    # Return the best individual and its fitness from the final generation
     best_individual = max(population, key=lambda ind: calculate_fitness(ind, target_dress_code, target_color, budget, comfort_level))
-    return calculate_fitness(best_individual, target_dress_code, target_color, budget, comfort_level), generation
+    return fitness_history, generation, best_individual
 
-
-#------------------------------------------------------------------------------------------------
 
 def main():
     print("Welcome to PerfectFit!")
@@ -247,59 +252,53 @@ def main():
     target_color = get_valid_color_palette()
     budget = get_valid_budget()
     comfort_level = get_valid_comfort_level()
+    print("...We're working on finding you the optimal outfit...")
+
 
     # Experiment settings
     pop_size = 10
-    max_generations = 20000  
-    num_runs = 20
-    
-    population = create_initial_population(pop_size)
+    max_generations = 20000  # Set a max limit for generations
+    num_runs = 20  # Number of runs
+    optimal_solution = 1.0  # The ideal fitness score
 
-    #checking 
-    #print(population)
+    # Collect fitness histories across all runs
+    all_fitness_histories = []
+    max_generations_run = 0
 
-    # Calculate fitness for each individual
-    fitnesses = [calculate_fitness(individual, target_dress_code, target_color, budget, comfort_level) for individual in population]
-    
-    #checking
-    #print(fitnesses)
-
-    # Selection
-    new_population = []
-    for _ in range(5): #replacing whole population once
-        parent1, parent2 = binary_tournament_selection(population, fitnesses)
-        child1, child2= two_point_crossover(parent1,parent2)
-        child1, child2= mutate(child1),mutate(child2)
-        new_population.append(child1)
-        new_population.append(child2)
-
-
-    print(" parent 1 is : \n", parent1)
-    print("------------------------------------------------------------------")
-    print("parent 2 is : \n", parent2)
-    print("------------------------------------------------------------------")
-    
-    # just checking 
-    # print("child 1 is : \n", child1)
-    # print("------------------------------------------------------------------")
-    # print("child 2 is : \n", child2)
-    # print("------------------------------------------------------------------")
-    # for item in new_population:
-    #     print(item)
-
-    # Termination Condition
-    total_fitness = 0
     for run in range(num_runs):
-        final_fitness, generations = evolve_population(pop_size, max_generations, target_dress_code, target_color, budget, comfort_level)
-        total_fitness += final_fitness
-        print(f"Run {run + 1}: Final fitness = {final_fitness:.4f} after {generations} generations")
+        fitness_history, generations,best_individual = evolve_population(
+            pop_size, max_generations, target_dress_code, target_color, budget, comfort_level, optimal_solution=optimal_solution
+        )
+        all_fitness_histories.append(fitness_history)
+        max_generations_run = max(max_generations_run, generations)  # Track the max number of generations across runs
+        if run == 0:
+            print("your optimal outfit is ready!") 
+            for key, value in best_individual.items():
+                print(f"{key}: {value.get('item')}")
+            solution_fitness=calculate_fitness(best_individual, target_dress_code, target_color, budget, comfort_level)
+            print("solution fitness:"+solution_fitness)
 
-    # Calculate and report the average fitness
-    average_fitness = total_fitness / num_runs
-    print(f"\nAverage fitness over {num_runs} runs: {average_fitness:.4f}")
+
+
+
+    # Calculate average fitness at each generation
+    avg_fitness_per_generation = [0] * max_generations_run
+    for fitness_history in all_fitness_histories:
+        for i, fitness in enumerate(fitness_history):
+            avg_fitness_per_generation[i] += fitness
+
+    avg_fitness_per_generation = [f / num_runs for f in avg_fitness_per_generation]
+
+    # Plot the average fitness over generations
+    plt.figure(figsize=(10, 6))
+    plt.plot(avg_fitness_per_generation, label="Average Fitness Over Runs", color='blue')
+    plt.xlabel("Generation")
+    plt.ylabel("Average Fitness")
+    plt.title("Convergence of Average Fitness Over Generations")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
 
 if __name__ == "__main__":
     main()
-
-
-
